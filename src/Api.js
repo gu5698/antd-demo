@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+
+// const callApi = (postData, req) => get('https://newsapi.org/v2/top-headlines?country=tw&apiKey=c14ac1132c5b4fabac7ee0bb1818ea79')
 const callApi = (postData, req) => {
   return Promise.resolve({
     status: "ok",

@@ -10,6 +10,14 @@ import {
 import "./App.css";
 import styled from "styled-components";
 import useTemplateData from "./Api";
+import {
+  Route,
+  Link,
+  Routes,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+
 const { Header, Footer, Sider, Content } = Layout;
 const { Search } = Input;
 const { Meta } = Card;
@@ -25,28 +33,27 @@ const suffix = (
   />
 );
 
-function getItem(label, key, icon, children) {
-  return {
-    key,
-    icon,
-    children,
-    label,
-  };
-}
-
-const items = [
-  getItem("熱門報導", "1", <MailOutlined />),
-  getItem("台灣", "2", <CalendarOutlined />),
-  getItem("中國", "3", <AppstoreOutlined />),
-  getItem("全球", "4", <SettingOutlined />),
-  getItem("娛樂", "5", <LinkOutlined />),
-  getItem("商業", "6", <CalendarOutlined />),
-  getItem("運動", "7", <AppstoreOutlined />),
-  getItem("科技", "8", <SettingOutlined />),
+const menuData = [
+  { label: "熱門報導", icon: <MailOutlined />, path: "/top-headlines" },
+  { label: "台灣", icon: <CalendarOutlined />, path: "/taiwan" },
+  { label: "中國", icon: <AppstoreOutlined />, path: "/china" },
+  { label: "全球", icon: <SettingOutlined />, path: "/china" },
+  { label: "娛樂", icon: <LinkOutlined />, path: "/entertainment" },
+  { label: "商業", icon: <CalendarOutlined />, path: "/business" },
+  { label: "運動", icon: <AppstoreOutlined />, path: "/sport" },
+  { label: "科技", icon: <SettingOutlined />, path: "/tech" },
 ];
+
+const items = menuData.map((d, i) => ({
+  key: `menu_${i}`,
+  icon: d.icon,
+  label: <Link to={d.path}>{d.label}</Link>,
+}));
 
 const App = () => {
   const [TemplateData] = useTemplateData();
+  const selectedKey = useLocation().pathname;
+
   return (
     <MainPage className="App">
       <Layout>
@@ -64,35 +71,38 @@ const App = () => {
         <Layout>
           <Sider>
             <Menu
-              style={{
-                width: 256,
-              }}
-              defaultSelectedKeys={["1"]}
-              defaultOpenKeys={["sub1"]}
+              defaultSelectedKeys={[`menu_${menuData.findIndex((d) => d.path === selectedKey)}`]}
               mode={"vertical"}
               theme={"light"}
               items={items}
             />
           </Sider>
           <Content>
-            {TemplateData.map((d) => {
-              return (
-                <Card
-                  hoverable
-                  style={{
-                    width: 240,
-                  }}
-                  cover={
-                    <img
-                      alt="img"
-                      src={d.urlToImage}
-                    />
-                  }
-                >
-                  <Meta title={d.title} description={d.author} />
-                </Card>
-              );
-            })}
+            <Routes>
+              <Route
+                exact
+                path="/"
+                element={<Navigate to="/top-headlines" replace />}
+              />
+              <Route
+                exact
+                path="/top-headlines"
+                element={TemplateData.map((d, i) => {
+                  return (
+                    <Card
+                      key={`card_${i}`}
+                      hoverable
+                      style={{
+                        width: "30%",
+                      }}
+                      cover={<img alt="img" src={d.urlToImage} />}
+                    >
+                      <Meta title={d.title} description={d.author} />
+                    </Card>
+                  );
+                })}
+              />
+            </Routes>
           </Content>
         </Layout>
         <Footer>
@@ -141,22 +151,26 @@ const MainPage = styled.div`
         background: #fff;
         height: 100%;
         overflow: hidden;
+        .ant-menu-item-selected {
+          background-color: transparent;
+        }
       }
     }
   }
   .ant-layout-content {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     overflow-y: scroll;
     .ant-card {
       border-radius: 10px;
-      margin-bottom: 15px;
+      margin: 15px;
+      overflow: hidden;
       .ant-card-cover {
         display: flex;
-        overflow: hidden;
-        height: 150px;
         align-items: center;
+        height: 125px;
+        overflow: hidden;
         img {
           height: auto;
           width: 100%;
